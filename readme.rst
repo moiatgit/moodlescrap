@@ -7,12 +7,17 @@ Aquest projecte és un intent d'automatitzar tasques bàsiques amb el Moodle.
 Si no saps que és Moodle o bé no trobes cap problema amb fer servir la seva interfície, probablement
 aquest projecte no tingui res a veure amb tu i el pots ignorar.
 
-Atenció: no estic dient res en contra de la usabilitat del Moodle. Per un ús estàndard (pocs
+*Atenció*: no estic dient res en contra de la usabilitat del Moodle. Per un ús estàndard (pocs
 exercicis i continguts que penges un cop i els reutilitzes any darrera d'any) està molt bé, i fins i
 tot, va millorant de versió en versió. Es tracta d'un programari excel·lent amb mancances per a
 alguns usos com qualsevol programari.
 
 Tot el que apareix en aquest projecte el deixo sota llicència GPL 3 o superior. 
+
+*Important*: De moment hi apareixeran scripts que no funcionen adequadament. He fet un esforç, pel
+meu interès també, de manera que no siguin destructius. Per tant, hauria de ser prou segur
+executar-los. En tot cas, i sento molt dir-ho, el que facis amb ells està sota la teva
+responsabilitat.
 
 Els scripts que incloc **no** pretenen ser generalistes. En concret, no intenten donar resposta a
 necessitats que jo mateix no tingui. Els publico aquí només perquè si apareix algú altre
