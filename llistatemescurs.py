@@ -84,9 +84,9 @@ else:
 moodle.submit_form({"jump":[value]})
 moodle.br.select_form(nr=0)
 exercici = MoodleExercise("Exercici de prova", "Descripció de <b>prova</b>")
-exercici.set_allowsubmissionsfromdate("20/10/2016 14:55")
-exercici.set_duedate("21/11/2017 15:50")
-exercici.set_cutoffdate("19/9/2015 13:45")
+exercici.set_allowsubmissionsfromdate("20/9/2016 14:55")
+exercici.set_duedate("21/10/2017 15:50")
+exercici.set_cutoffdate("19/11/2017 13:45")
 moodle.submit_form_by_id(exercici.data)
 #moodle.submit_form_by_id({"id_name":"exercici de prova", 
 #                          "id_introeditor":"Descripció de <b>prova</b>",
