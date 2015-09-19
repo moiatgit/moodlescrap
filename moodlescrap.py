@@ -51,19 +51,19 @@ class MoodleScrapper:
             self.br.form[k] = v
         self.response = self.br.submit()
 
+
     def submit_form_by_id(self, pairs):
         """ same as submit_form() but considering id instead of name """
-        print "XXX pairs:%s"%pairs
         for k, v in pairs.iteritems():
+            if v == None:
+                continue
             control = self.br.form.find_control(id=k)
-            print "XXX trobat control %s %s %s %s"%(control.name, control.id, control.type, control.value)
             if control.type=="checkbox":
-                print "XXX\t select!"
-                control.selected = k
+                print "XXX control checkbox %s=%s"%(k, v)
+                control.items[0].selected = v
+                print "XXX\t now selected=%s"%control.items
             else:
-                print "XXX\t non select but %s"%control.type
                 control.value = v
-            print "XXX \t deixat control %s %s %s"%(control.name, control.id, control.value)
         self.response = self.br.submit()
 
 
