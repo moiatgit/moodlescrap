@@ -1,10 +1,7 @@
 #! /src/bin/env python
 # encoding: utf-8
 # Demostració d'obtenció de la llista de temes d'un curs en Moodle
-import sys, os, base64
-import mechanize
-import re
-from bs4 import BeautifulSoup
+import sys
 
 from moodlescrap import MoodleScrapper
 from exercise import MoodleExercise
@@ -12,39 +9,27 @@ from exercise import MoodleExercise
 curs_escollit = "TEST"
 tema_escollit = "Tema de Test"
 
-fitxer_config = ".config/moodlescrap.dat"
-
-def obte_params_conf():
-    """ obté els paràmetres url, usuari i pasword del fitxer de configuració """
-    url = username = pasword = None
-    if os.path.exists(fitxer_config):
-        f = open(fitxer_config)
-        url=f.readline().strip()
-        username=f.readline().strip()
-        password=base64.b64decode(f.readline().strip())
-        f.close()
-    return url, username, password
-
 # obtenció de les dades de connexió
-url, username, password = obte_params_conf()
-moodle = MoodleScrapper(url, username, password)
-print moodle.br.title()
+#url, username, password = obte_params_conf()
+moodle = MoodleScrapper()
 
-# Mostra la llista de cursos: TODO: passa a MoodleScrapper
-cursos = moodle.get_my_courses_list()
-for curs in cursos:
-    print "Curs [%s]:'%s' (%s)"%(curs.courseid, curs.coursename, curs.courseurl)
-
-print moodle.contents
+# Mostra la llista de cursos
+moodle.show_mycourses()
 
 # Obtenció de la pàgina amb el curs
-if not moodle.jump_to_course(curs_escollit):
-    print "No s'ha trobat el curs", curs_escollit
-    moodle.disconnect()
-    sys.exit()
+moodle.jump_to_course_by_name(curs_escollit)
 
 # Mostra temes del curs
-print moodle.contents
+moodle.show_themes_of_course()
+#print "List of themes"
+#soup = moodle.contents
+#for tema in soup.find_all("h3", attrs={"class":"section-title"}):
+#    print tema.a.text
+#print soup
+#for tema in soup.find_all("li", attrs={"aria-label":tema_escollit}):
+#    print "\tTema [%s]:%s"%(tema[id], tema.h3.a.text)
+#    #formid = "section%s"%tema["id"][len("section-")]
+#
 moodle.disconnect()
 sys.exit()
 
@@ -54,7 +39,7 @@ moodle.follow_link("Activa edició")
 
 # Troba tema per nom
 soup = moodle.contents
-for tema in soup.find_all("li", attrs={"aria-label":tema_escollit}):
+for tema in soup.find_all("h3", attrs={"class":"section-title"}):
     if tema.h3.a.text == tema_escollit:
         formid = "section%s"%tema["id"][len("section-")]
         break

@@ -8,3 +8,10 @@ class MoodleCourse:
         self.courseid = courseid
         self.coursename = coursename
         self.courseurl = courseurl
+        self.themes = None
+
+class MoodleTheme:
+    def __init__(self, themeid, themename, themeurl):
+        self.themeid = themeid
+        self.themename = themename
+        self.themeurl = themeurl

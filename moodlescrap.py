@@ -3,20 +3,39 @@
 
 # Utilities for Moodle Scraping
 
+# TODO: a lot of robustesness is missing (e.g. not dealing with exceptions like config file not
+# found)
+
 import mechanize
 from bs4 import BeautifulSoup
 import re
 from curs import MoodleCourse
+from curs import MoodleTheme
+import os, sys, base64
 
 class MoodleScrapper:
     """ encapsulates a session with moodle """
 
-    def __init__(self, url, username, password):
-        self._connect(url, username, password)
+    _CONFIG_FILE = ".config/moodlescrap.dat"
+
+
+    def __init__(self):
+        self._load_connection_params()
+        self._connect()
         self.mycourses = None
+        self.currentcourse = None
 
+    def _load_connection_params(self):
+        """ loads connection parameters from _CONFIG_FILE """
+        self.url = self.username = self.pasword = None
+        if os.path.exists(MoodleScrapper._CONFIG_FILE):
+            f = open(MoodleScrapper._CONFIG_FILE)
+            self.url=f.readline().strip()
+            self.username=f.readline().strip()
+            self.password=base64.b64decode(f.readline().strip())
+            f.close()
 
-    def _connect(self, url, username, password):
+    def _connect(self):
         """ connects to the url with user and password.
             Returns mechanize Browser on exit. """
         self.br = mechanize.Browser()
@@ -24,16 +43,19 @@ class MoodleScrapper:
         self.br.addheaders = [{'User-agent', 'Firefox'} ]
 
         # visitant Moodle
-        self.br.open(url)
+        self.br.open(self.url)
+        assert self.br.viewing_html()
+        print "MoodleScrapper: at URL %s"%self.url
         self.follow_link("Entra amb Google")
-
         # signant amb Google
         assert self.br.viewing_html()
+        print "MoodleScrapper: signing with Google"
         self.br.select_form(nr=0)
-        self.submit_form({"Email":username, "Passwd":password})
+        self.submit_form({"Email": self.username, "Passwd": self.password})
 
         # tornada a Moodle
         assert self.br.viewing_html()
+        print "MoodleScrapper: Signed"
 
     def follow_link(self, text):
         """ tries to follow the first link with the text """
@@ -91,6 +113,26 @@ class MoodleScrapper:
                 self.mycourses.append(MoodleCourse(courseid, coursetitle, courseurl))
         return self.mycourses
 
+    def get_themes_from_courseid(self, courseid):
+        """ loads the themes from the course with id """
+        self.get_my_courses_list()
+        course = next( (c for c in self.mycourses if c.courseid == courseid), None)
+        if None:
+            print "ERROR: course id %s not found"
+            return
+        if course.themes == None:
+            course.themes = []
+            self.openurl(course.courseurl)
+            for theme in self.contents.find_all("h3", attrs={"class":"section-title"}):
+                themeid = theme.a["href"].split("=")[2]
+                themename = theme.a.text
+                themeurl = theme.a["href"]
+                course.themes.append(MoodleTheme(themeid, themename, themeurl))
+        return course.themes
+
+
+
+
     def select_form_by_id(self, formid):
         """ selects a form by attribute id.
             Returns True if form was found, False otherwise """
@@ -104,29 +146,58 @@ class MoodleScrapper:
     def openurl(self, url):
         """ opens a new url """
         self.update_response(self.br.open(url))
+        assert self.br.viewing_html()
+        print "Now at URL %s"%url
 
-    def jump_to_course(self, coursename):
+    def jump_to_course_by_name(self, coursename):
         """ jumps to coursename
             It returns True if course found """
-        XXX vas per aquí: la idea és que disposes de self.courses i pots trobar si ja es troba el
-        curs carregat per simplement seguir l'enllaç.
-        Caldrà carregar la llista de cursos en cas que sigui None.
+        self.get_my_courses_list()
+        course = next( (c for c in self.mycourses if c.coursename == coursename), None)
 
-        self.follow_link
-        soup = self.contents
-        enrolled = soup.find("div", attrs={"class":"courses frontpage-course-list-enrolled"})
-        if enrolled == None:
+        if course == None:
             return False
-        for curs in enrolled.find_all("div", attrs={'class': re.compile("coursebox.*")}):
-            nomcurs = curs.div.h3.a.text
-            if nomcurs == coursename:
-                novaurl=curs.div.h3.a["href"]
-                break
-        else:
-            print "No s'ha trobat el curs", coursename
-            return False
-        self.openurl(novaurl)
+
+        self.openurl(course.courseurl)
+        self.currentcourse = course
         return True
+
+    def jump_to_course_by_id(self, courseid):
+        """ jumps to course with id
+            It returns True if course found """
+        self.get_my_courses_list()
+        course = next( (c for c in self.mycourses if c.courseid == courseid), None)
+
+        if course == None:
+            return False
+
+        self.openurl(course.courseurl)
+        self.currentcourse = course
+        return True
+
+    def show_mycourses(self):
+        """ shows the list of my courses """
+        self.get_my_courses_list()
+        print "My Courses list:"
+        for course in self.mycourses:
+            print "\tCourse [%s]:'%s' (%s)"%(course.courseid, course.coursename, course.courseurl)
+
+    def show_themes_of_course(self, courseid=None):
+        """ Shows the list of themes of current course """
+        if courseid == None:
+            if not self.currentcourse == None:
+                courseid = self.currentcourse.courseid
+        if courseid == None:
+            print "No course selected yet"
+            return
+        themes = self.get_themes_from_courseid(courseid)
+        for theme in themes:
+            print "\tTheme [%s]: %s (%s)"%(theme.themeid, theme.themename, theme.themeurl)
+        #self.jump_to_course_by_id(courseid)
+        #print "List of themes for course %s"%self.currentcourse.coursename
+        #for theme in self.contents.find_all("h3", attrs={"class":"section-title"}):
+        #    print "\tsection_id:%s"%theme.a["href"].split("=")[2]
+        #    
 
     def disconnect(self):
         # finalitzant la sessió
