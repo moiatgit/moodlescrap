@@ -100,7 +100,7 @@ class MoodleScrapper:
             else:
                 control.value = v
 
-    def get_my_courses_list(self):
+    def get_my_courses(self):
         """ selects the page with my courses and returns the list of them (id, name) """
         if self.mycourses == None:
             self.follow_link("Els meus cursos")
@@ -115,7 +115,7 @@ class MoodleScrapper:
 
     def get_themes_from_courseid(self, courseid):
         """ loads the themes from the course with id """
-        self.get_my_courses_list()
+        self.get_my_courses()
         course = next( (c for c in self.mycourses if c.courseid == courseid), None)
         if None:
             print "ERROR: course id %s not found"
@@ -152,7 +152,7 @@ class MoodleScrapper:
     def jump_to_course_by_name(self, coursename):
         """ jumps to coursename
             It returns True if course found """
-        self.get_my_courses_list()
+        self.get_my_courses()
         course = next( (c for c in self.mycourses if c.coursename == coursename), None)
 
         if course == None:
@@ -165,7 +165,7 @@ class MoodleScrapper:
     def jump_to_course_by_id(self, courseid):
         """ jumps to course with id
             It returns True if course found """
-        self.get_my_courses_list()
+        self.get_my_courses()
         course = next( (c for c in self.mycourses if c.courseid == courseid), None)
 
         if course == None:
@@ -177,7 +177,7 @@ class MoodleScrapper:
 
     def show_mycourses(self):
         """ shows the list of my courses """
-        self.get_my_courses_list()
+        self.get_my_courses()
         print "My Courses list:"
         for course in self.mycourses:
             print "\tCourse [%s]:'%s' (%s)"%(course.courseid, course.coursename, course.courseurl)
