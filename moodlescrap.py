@@ -17,6 +17,7 @@ class MoodleScrapper:
     """ encapsulates a session with moodle """
 
     _CONFIG_FILE = ".config/moodlescrap.dat"
+    _DATA_FILE   = ".config/mycourses.pickle"
 
 
     def __init__(self):
