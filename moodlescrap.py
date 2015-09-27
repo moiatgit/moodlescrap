@@ -12,6 +12,7 @@ import re
 from curs import MoodleCourse
 from curs import MoodleTheme
 import os, sys, base64
+import mimetypes
 
 class MoodleScrapper:
     """ encapsulates a session with moodle """
@@ -85,9 +86,28 @@ class MoodleScrapper:
         self.fill_form_by_id(pairs)
         self.update_response(self.br.submit())
 
+    def submit_selected_form(self):
+        """ submits selected form """
+        self.update_response(self.br.submit())
+
+    def _add_files_to_form(self, filelist):
+        """ adds the files in filelist to form """
+        print "XXX adding files to form", filelist
+        for path in filelist:
+            if os.path.isfile(path):
+                mimetype=mimetypes.guess_type(path)
+                with open(path) as f:
+                    data = f.read()
+                filename = os.path.basename(path)
+                print "XXX adding %s %s"%(mimetype, filename)
+                self.br.form.add_file(data, mimetype, filename)
+            else:
+                print "Ignored file %s"%path
+
     def submit_exercise(self, exercise):
         """ submits an exercise """
         self.fill_form_by_id(exercise.data)
+        self._add_files_to_form(exercise.files)
         self.update_response(self.br.submit())
 
     def fill_form_by_id(self, pairs):
@@ -131,9 +151,6 @@ class MoodleScrapper:
                 course.themes.append(MoodleTheme(themeid, themename, themeurl))
         return course.themes
 
-
-
-
     def select_form_by_id(self, formid):
         """ selects a form by attribute id.
             Returns True if form was found, False otherwise """
@@ -164,7 +181,7 @@ class MoodleScrapper:
         return True
 
     def jump_to_course_by_id(self, courseid):
-        """ jumps to course with id
+        """ jumps to course with id courseid
             It returns True if course found """
         self.get_my_courses()
         course = next( (c for c in self.mycourses if c.courseid == courseid), None)
@@ -174,6 +191,17 @@ class MoodleScrapper:
 
         self.openurl(course.courseurl)
         self.currentcourse = course
+        return True
+
+    def jump_to_theme_by_id(self, courseid, themeid):
+        """ jumps to theme with id themeid
+            It returns True if theme found """
+        themes = self.get_themes_from_courseid(courseid)
+        theme = next( (t for t in themes if t.themeid == themeid), None)
+        if theme == None:
+            return False
+        self.openurl(theme.themeurl)
+        self.currenttheme = theme
         return True
 
     def show_mycourses(self):

@@ -69,10 +69,11 @@ else:
 
 moodle.submit_form({"jump":[value]})
 moodle.br.select_form(nr=0)
-exercici = MoodleExercise("Exercici de prova", "Descripció de <b>prova</b>")
+exercici = MoodleExercise("Exercici de prova avui", "Descripció de <b>prova</b>")
 exercici.set_allowsubmissionsfromdate("20/9/2016 14:55")
 exercici.set_duedate("21/10/2017 15:50")
 exercici.set_cutoffdate("19/11/2017 13:45")
+exercici.add_file("try.py")
 moodle.submit_exercise(exercici)
 
 
