@@ -9,6 +9,8 @@
 
 # TODO: an enhancement could be to accept .rst files. Furthermore, to accept a especific exercise included in
 # a .rst file.
+# TODO: In case there's an existing exercise with the same title, it should update instead of
+# adding a new one
 
 import sys, os
 import argparse

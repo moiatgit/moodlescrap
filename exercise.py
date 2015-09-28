@@ -90,7 +90,7 @@ class MoodleExercise:
             if "id_%s_%s"%(key, postkey_options[i]) not in self.data:
                 print "XXX errror"
 
-            self.data["id_%s_%s"%(key, postkey_options[i])]=[m.group(i+1)]
+            self.data["id_%s_%s"%(key, postkey_options[i])]=[str(int(m.group(i+1)))]
         self.data["id_%s_enabled"%key]=True
 
 

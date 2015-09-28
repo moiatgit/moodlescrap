@@ -132,6 +132,7 @@ class MoodleScrapper:
             if control.type=="checkbox":
                 control.items[0].selected = v
             else:
+                print "XXX %s control name"%k, control.name, "=", v
                 control.value = v
 
     def get_my_courses(self):
