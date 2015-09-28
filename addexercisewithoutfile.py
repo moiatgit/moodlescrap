@@ -1,24 +1,7 @@
 #! /src/bin/env python
 # encoding: utf-8
-# Demostració de com afegir un exercici amb fitxer
+# Demostració de com afegir un exercici sense adjunts
 
-print """XXX Aquesta prova no funciona
-    El problema és que Moodle no ofereix un camp file en els formularis de tasca
-    En canvi, hi ha un formulari amb l'etiqueta "Penja un fitxer" que podria ser seleccionat.
-    Disposa d'un botó "Browse"
-    Caldrà continuar investigant
-
-
-    <div class="fp-navbar">
-            <div class="filemanager-toolbar">
-                <div class="fp-toolbar">
-                    <div class="fp-btn-add">
-                        <a role="button" title="Afegeix..." href="#">
-                            <img src="http://agora.xtec.cat/insjoandaustria/moodle/theme/image.php/xtec2/core/1441294536/a/add_file" alt="Add file" />
-                        </a>
-                    </div>
-
-"""
 
 import sys
 
@@ -57,16 +40,17 @@ moodle.submit_selected_form()
 
 moodle.br.select_form(nr=0)
 
-print moodle.contents
-moodle.disconnect()
-sys.exit()
-
 #print "="*100, "\n", moodle.contents, "="*100, "\n"
 
 
-exercici = MoodleExercise("Exercici de prova avui", "Descripció de <b>prova</b>")
-exercici.set_allowsubmissionsfromdate("20/9/2016 14:55")
-exercici.add_file("try.py")
+exercici = MoodleExercise("Exercici de prova avui", """
+    <h1>Descripció de la prova</h1>
+    <p>Aquesta és la descripció de <b>prova</b></p>
+    <p>Tinc fins i tot un diagrama a mostrar! <img
+                          src="http://moiatgit.github.io/apuntstecnics/images/poo003.img001.ascensor.png"></p>
+                          """
+                          )
+exercici.set_allowsubmissionsfromdate("20/10/2016 14:55")
 moodle.submit_exercise(exercici)
 
 

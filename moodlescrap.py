@@ -90,25 +90,38 @@ class MoodleScrapper:
         """ submits selected form """
         self.update_response(self.br.submit())
 
-    def _add_files_to_form(self, filelist):
-        """ adds the files in filelist to form """
-        print "XXX adding files to form", filelist
-        for path in filelist:
-            if os.path.isfile(path):
-                mimetype=mimetypes.guess_type(path)
-                with open(path) as f:
-                    data = f.read()
-                filename = os.path.basename(path)
-                print "XXX adding %s %s"%(mimetype, filename)
-                self.br.form.add_file(data, mimetype, filename)
-            else:
-                print "Ignored file %s"%path
-
     def submit_exercise(self, exercise):
-        """ submits an exercise """
+        """ submits an exercise.
+            It expects the corresponding form has been already selected """
         self.fill_form_by_id(exercise.data)
-        self._add_files_to_form(exercise.files)
-        self.update_response(self.br.submit())
+        response = self.br.submit()
+        self.update_response(response)
+
+    def submit_exercises_on_theme(self, courseid, themeid, exercises):
+        """ submits an exercise after selecting the corresponding course and theme """
+        formid = "section%s"%themeid
+        self.jump_to_theme_by_id(courseid, themeid)
+        # activate edition
+        self.follow_link("Activa edició")
+
+        for exercise in exercises:
+            # selecciona el formulari del tema escollit
+            if not self.select_form_by_id(formid):
+                print "No s'ha trobat el formulari ", formid
+                self.disconnect()
+                sys.exit()
+            # set adding a new task
+            control = self.br.form.find_control("jump")
+            control.items[19].selected = True
+            self.submit_selected_form()
+            self.br.select_form(nr=0)
+            # actual submission
+            self.submit_exercise(exercise)
+            print "Submited exercise: %s"%exercise.data["id_name"]
+
+        # deactivate edition
+        self.follow_link("Desactiva edició")
+
 
     def fill_form_by_id(self, pairs):
         """ sets values on current form where pairs key correspond with form controls' id """
@@ -138,8 +151,8 @@ class MoodleScrapper:
         """ loads the themes from the course with id """
         self.get_my_courses()
         course = next( (c for c in self.mycourses if c.courseid == courseid), None)
-        if None:
-            print "ERROR: course id %s not found"
+        if course == None:
+            print "ERROR: course id %s not found"%courseid
             return
         if course.themes == None:
             course.themes = []

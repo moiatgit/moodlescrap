@@ -66,11 +66,6 @@ class MoodleExercise:
             "id_groupmode": None,
             "id_groupingid": None,
         }
-        self.files = []
-
-    def add_file(self, path):
-        """ adds a file for the exercise """
-        self.files.append(path)
 
     def set_allowsubmissionsfromdate(self, date):
         """ sets allowsubmissionsfrom date """
